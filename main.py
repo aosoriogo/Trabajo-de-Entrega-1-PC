@@ -34,6 +34,46 @@ def buscar():
     for linea in busqueda:
         print(linea)
 
+def estadísticas_basicas():
+    print("\n--- ESTADÍSTICAS BÁSICAS ---")
+    print("Ingresa un número de acuerdo a la columna que deseas analizar:")
+    print("0: Embarazos")
+    print("1: Glucosa")
+    print("2: Presión arterial")
+    print("3: Grosor de la piel")
+    print("4: Insulina")
+    print("5: IMC")
+    print("6: Función de pedigrí de diabetes")
+    print("7: Edad")
+    print("8: Resultado")
+
+    columna=int(input("Elige el número de columna: "))
+
+    maximo = None
+    minimo = None
+    suma = 0
+    contador = 0
+
+    for fila in mis_datos:
+        try:
+            valor = float(fila[columna])
+        except:
+            continue
+
+        if maximo is None or valor > maximo:
+            maximo = valor
+        if minimo is None or valor < minimo:
+            minimo = valor 
+
+        suma += valor 
+        contador += 1
+
+    if contador > 0:
+        promedio = suma/contador
+        print(f"Máximo: {maximo} · Mínimo: {minimo} · Promedio: {round(promedio,1)}")
+    else:
+        print("No hay datos en la columna")
+
 
 
 def menu_interactivo():
@@ -51,6 +91,7 @@ def menu_interactivo():
                 buscar()
             case 2:
                 print("Elegiste ESTADÍSTICAS BÁSICAS")
+                estadísticas_basicas()
             case 3:
                 print("Elegiste FILTRAR POR CONDICIÓN")
             case 4:
@@ -61,4 +102,5 @@ def menu_interactivo():
 
 
 menu_interactivo()
+
 
