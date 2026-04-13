@@ -120,6 +120,7 @@ def menu_interactivo():
                 estadísticas_basicas()
             case 3:
                 print("Elegiste FILTRAR POR CONDICIÓN")
+                filtro()
             case 4:
                 print("Elegiste SALIR DEL PROGRAMA")
                 break
