@@ -76,6 +76,32 @@ def estadísticas_basicas():
 
 
 
+def flitro():
+    filtro = []
+    print('Digite el numero de acuerdo a la columna la que desea filtrar: ')
+    print("0: Embarazos")
+    print("1: Glucosa")
+    print("2: Presión arterial")
+    print("3: Grosor de la piel")
+    print("4: Insulina")
+    print("5: IMC")
+    print("6: Función de pedigrí de diabetes")
+    print("7: Edad")
+    print("8: Resultado")
+    x = int(input())
+    if x in [0, 1, 2, 3, 4,5 ,6 7, 8]
+        y = int(input('Digite desde que valor desea filtrar: '))
+        for fila in mis_datos:
+            if fila[x] > y:
+                filtro.append(fila)
+    else:
+        print('Digite un numero valido')
+        filtro()
+    filtro.sort(key=lambda a, a[x])
+    print(f'Se filtraron {len(mis_datos)-len(filtro)} resultados')
+    for linea in filtro:
+        print(linea)
+            
 def menu_interactivo():
     while True:
         print("\n BIENVENIDOS AL MENÚ INTERACTIVO DE INSULINE_LOGIC!")
