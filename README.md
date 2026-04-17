@@ -2,7 +2,12 @@
 Diabetes dataset
 
 # Instrucciones para correr el programa
-
+- Descargar el proyecto (click code, download zip)
+- Extraer el proyecto
+- Abrir visual code
+- selecionar file, luego open folder y luego  elegir el proyecto 
+- Dar click en main.py
+- Dar click en run ▶️ (parte superior derecha)
 
 # Preguntas sobre el dataset:
 - ¿Cuál es el nivel promedio de glucosa e insulina en pacientes que resultaron positivos de diabetes frente a los que no?
