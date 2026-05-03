@@ -13,8 +13,8 @@ def cargar_dataset_completo(ruta):
                 for campo in ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"]:
                     fila[campo] = float(fila[campo]) if fila[campo] else 0
 
-            fila["Outcome"] = int(fila["Outcome"]) if fila["Outcome"] else 0
-            lista_datos.append(fila)
+                fila["Outcome"] = int(fila["Outcome"]) if fila["Outcome"] else 0
+                lista_datos.append(fila)
         
         print(f"Carga exitosa: {len(lista_datos)} registros.")
         return lista_datos
