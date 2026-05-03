@@ -10,7 +10,12 @@ def cargar_dataset_completo(ruta):
             # DictReader convierte cada fila en un diccionario
             lector = csv.DictReader(archivo)
             for fila in lector:
-                lista_datos.append(fila)
+                for campo in ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness",
+              "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"]:
+                    fila[campo] = float(fila[campo]) if fila[campo] else 0
+
+            fila["Outcome"] = int(fila["Outcome"]) if fila["Outcome"] else 0
+            lista_datos.append(fila)
         
         print(f"Carga exitosa: {len(lista_datos)} registros.")
         return lista_datos
