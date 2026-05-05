@@ -6,7 +6,7 @@ from logica import cargar_dataset_completo
 RUTA_DATASET = "Data/diabetes_COMPLETO.csv"
 
 # MENÚ INTERACTIVO
-mostrar_menu():
+def mostrar_menu():
     print("\n--- ¡BIENVENIDOS AL MENÚ INTERACTIVO DE INSULINE LOGIC! ---")
     print("1. Ver cantidad de datos")
     print("2. Filtrar pacientes en riesgo")
@@ -27,16 +27,19 @@ def menu_interactivo(dataset):
         
         if opcion == "1":
             print(f"Total de registros: {len(dataset)}")
+            guardar_historial(opcion, 1)
         elif opcion == "2":
             resultados = filtrar_pacientes(dataset)
             print(f"Se encontraron {len(resultados)} pacientes en riesgo")
             for r in resultados:
                 print(r)
+            guardar_historial(opcion, resultados)
         elif opcion == "3":
             resultados = filtrar_pacientes(dataset)
             ruta = input("Ingrese nombre del archivo (ej: resultados.csv o resultados.json): ")
             guardar_resultados(resultados, ruta)
             print("Resultados guardados correctamente")
+            guardar_historial(opcion, resultados)
         elif opcion == "4":
             ruta = input("Ingrese ruta del archivo a cargar: ")
             datos_cargados = cargar_resultados(ruta)
@@ -45,14 +48,25 @@ def menu_interactivo(dataset):
                 print(f"Se cargaron {len(datos_cargados)} registros:")
                 for d in datos_cargados:
                     print(d)
+                guardar_historial(opcion, datos_cargados)
             else:
                 print("No se pudieron cargar los datos")
         elif opcion == "5":
             # Historial
-            print("Historial no implementado aún")
+            historial = visualizar_hisorial()
+            print('Historial de consultas')
+            h = 0
+            for fila in historial:
+                if fila == []:
+                    continue
+                else:
+                    print(fila)
+                    h += 1
+            guardar_historial(opcion, h)
         elif opcion == "6":
             # Funcionalidad opcional
             print("Funcionalidad opcional no implementada aún")
+            guardar_historial(opcion, 0)
         elif opcion == "7":
             print("Saliendo del programa...")
             break
@@ -88,7 +102,37 @@ def cargar_resultados(ruta):
             return json.load(archivo)
 
 # FUNCIONALIDAD 2
-
+#Visualizar el historial
+def visualizar_hisorial():
+    with open("resultados/historial.csv", mode='r', encoding='utf-8') as archivo:
+        datos = csv.reader(archivo, delimiter=",")
+        return list(datos)
+#Guardar historial
+import datetime as dt
+import csv
+def guardar_historial(opcion, resultado):
+    with open("resultados/historial.csv", mode='a', encoding='utf-8') as hist:
+        if opcion == '1':
+            t = 'Visualizar datos'
+            res = resultado
+        elif opcion == '2':
+            t = 'Pacientes en riezgo'
+            res = len(resultado)
+        elif opcion == '3':
+            t = 'Guardar filtro'
+            res = len(resultado)
+        elif opcion == '4':
+            t = 'Cargar resultados'
+            res = len(resultado)
+        elif opcion == '5':
+            t = 'Visualizar historial'
+            res = resultado
+        elif opcion == '6':
+            t = 'Funcionalidad opcional'
+            res = resultado
+        r = str(res) + ' resultados'
+        guardar = csv.writer(hist, delimiter=",")
+        guardar.writerow([dt.datetime.now().strftime("%Y-%m-%d %H:%M"), t, r])
 #FUNCIONALIDAD OPCIONAL
 
 
