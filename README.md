@@ -4,6 +4,7 @@ Diabetes dataset
 # Instrucciones para correr el programa
 - Descargar el proyecto (click code, download zip)
 - Extraer el proyecto
+- Instalar las dependencias indicadas en "Archivos Adiconales/Requirements.txt"
 - Abrir visual code
 - selecionar file, luego open folder y luego  elegir el proyecto 
 - Dar click en main.py
