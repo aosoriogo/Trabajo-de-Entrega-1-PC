@@ -9,7 +9,7 @@ def cargar_datos(nombre_archivo):
             datos.append(fila)
     return datos
   
-mis_datos = cargar_datos("diabetes_50FILAS.csv") #carga el dataset en la variable global mis_datos
+mis_datos = cargar_datos("Data\\diabetes_50FILAS.csv") #carga el dataset en la variable global mis_datos
 print(f"Se cargaron {len(mis_datos)} registros con éxito.")
 
 # print(mis_datos[0]) #Linea de prueba para verificar que si cargo el dataset (dejar comentado)
@@ -138,11 +138,7 @@ def filtro():
 
 
             
-def menu_interactivo():
-    '''
-        crea un menu que permite al usuario elegir la operacion deseada sobre el dataset 
-        o cerrar el programa
-    '''
+def app():
     while True:
         print("\n BIENVENIDOS AL MENÚ INTERACTIVO DE INSULINE_LOGIC!")
         print("Ingresa 1 si deseas BUSCAR")

@@ -1,150 +1,216 @@
-# AQUÍ VA LO NUEVO (Entrega 2)
-# Solo el MENÚ y llamadas a funciones
-from logica import cargar_dataset_completo
+import os
+import csv
 
-# Definimos la ruta al archivo de 200+ registros
-RUTA_DATASET = "Data/diabetes_COMPLETO.csv"
+import utilidades as util
+import cli
 
-# MENÚ INTERACTIVO
-def mostrar_menu():
-    print("\n--- ¡BIENVENIDOS AL MENÚ INTERACTIVO DE INSULINE LOGIC! ---")
-    print("1. Ver cantidad de datos")
-    print("2. Filtrar pacientes en riesgo")
-    print("3. Guardar resultados filtrados")
-    print("4. Cargar resultados guardados")
-    print("5. Ver historial")
-    print("6. Funcionalidad opcional")
-    print("7. Salir")
+#Configuraciones iniciales
+#RUTA_DATASET = "Data\\diabetes_COMPLETO.csv"
+RUTA_DATASET = "Data\\diabetes_COMPLETO.csv"
+RUTA_HISTORIAL = "resultados\\historial.csv"
+DIR_RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def menu_interactivo(dataset):
-    if not dataset:
-        print("No hay dataset cargado.")
-        return
+#Variables globales
+dataset = []
 
-    while True:
-        mostrar_menu()
-        opcion = input("Seleccione una opción: ")
+#Funciones de la logica del programa
+def cargar_dataset_completo():
+    """
+    Permite al usuario seleccionar un dataset entre el original y una busqueda guardada previamente
+    y lo carga como una lista de diccionarios
+    """
+    global dataset
+    dataset.clear()
+
+    a = cli.selecionar_dataset()
+    if a == 1:
+        ruta = os.path.join(DIR_RAIZ, RUTA_DATASET)
+    else:
+        carpeta = os.path.join(DIR_RAIZ, "resultados")
+        print("\n\nLista de archivos guardados: ")
+        for j in os.listdir(carpeta):
+            print(f"\t{j}")
         
-        if opcion == "1":
-            print(f"Total de registros: {len(dataset)}")
-            guardar_historial(opcion, 1)
-        elif opcion == "2":
-            resultados = filtrar_pacientes(dataset)
-            print(f"Se encontraron {len(resultados)} pacientes en riesgo")
-            for r in resultados:
-                print(r)
-            guardar_historial(opcion, resultados)
-        elif opcion == "3":
-            resultados = filtrar_pacientes(dataset)
-            ruta = input("Ingrese nombre del archivo (ej: resultados.csv o resultados.json): ")
-            guardar_resultados(resultados, ruta)
-            print("Resultados guardados correctamente")
-            guardar_historial(opcion, resultados)
-        elif opcion == "4":
-            ruta = input("Ingrese ruta del archivo a cargar: ")
-            datos_cargados = cargar_resultados(ruta)
+        archivo = input("Digite nombre del archivo sin extension: ")
+        if archivo == "historial":
+            print("Acceso denegado, elija otro archivo")
+            return False
+        archivo += ".csv"
+        ruta = os.path.join(carpeta, archivo)
+        
 
-            if datos_cargados:
-                print(f"Se cargaron {len(datos_cargados)} registros:")
-                for d in datos_cargados:
-                    print(d)
-                guardar_historial(opcion, datos_cargados)
-            else:
-                print("No se pudieron cargar los datos")
-        elif opcion == "5":
-            # Historial
-            historial = visualizar_hisorial()
-            print('Historial de consultas')
-            h = 0
-            for fila in historial:
-                if fila == []:
+    try:
+        with open(ruta, mode='r', encoding='utf-8') as archivo:
+            # DictReader convierte cada fila en un diccionario
+            lector = csv.DictReader(archivo)
+            for fila in lector:
+                for campo in ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"]:
+                    fila[campo] = float(fila[campo]) if fila[campo] else 0
+
+                fila["Outcome"] = int(fila["Outcome"]) if fila["Outcome"] else 0
+                dataset.append(fila)
+        
+        print(f"Carga exitosa: {len(dataset)} registros.")
+        cli.imprimir_dataset(dataset)
+        return True
+    except FileNotFoundError:
+        print(f"ERROR: No se encontró el archivo en la ruta: {ruta}")
+        return []
+    except Exception as err:
+        print(f"Error carga dataset: {err}")
+        return []
+    
+def buscar():
+    '''
+        busca un valor en el dataset e imprime todas las columnas que lo contienen junto con la cantidad de veces que se encontro
+        permite elegir si buscar coincidencias exactas o cualquier coincidencia
+    '''
+
+    global dataset
+
+    #tomar entradas del usuario
+    busqueda = []
+    print("\nElegiste BUSCAR\n")
+
+    a = input("digite criterio busqueda: ")
+    b = input("digite 1 para busqueda exacta y 2 para busqueda extendida: ")
+    
+    #realizar busquedas y agregar coincidencias a nueva lista
+    if b == "1": 
+        for linea in dataset:
+            for celda in linea.values():
+                try:
+                    if float(a) == float(celda):
+                        busqueda.append(linea)
+                        break
+                except:
+                    print("Fila erronea, pasando a la siguiente")
                     continue
-                else:
-                    print(fila)
-                    h += 1
-            guardar_historial(opcion, h)
-        elif opcion == "6":
-            # Funcionalidad opcional
-            print("Funcionalidad opcional no implementada aún")
-            guardar_historial(opcion, 0)
-        elif opcion == "7":
-            print("Saliendo del programa...")
-            break
-        else:
-            print("Opción inválida, intenta de nuevo")
+    else:
+        for linea2 in dataset:
+            w = [str(v) for v in linea2.values()]
+            r = " ".join(w)
 
-# FUNCIONALIDAD 1 
-import json 
-import csv
-# Filtro de datos
-def filtrar_pacientes(datos):
-    return [d for d in datos if d["Glucose"]>125 or d["BMI"]>30 ]
-#Guardar resultados
-def guardar_resultados(datos, ruta):
-    if not datos:
-        print("No hay datos")
+            if a in r:
+                busqueda.append(linea2)
+
+    
+    #Imprimir resultados y numero de coincidencias totales
+    if len(busqueda) == 0:
+        print("\nNo se encontraron coincidencias\n")
         return
-    if ruta.endswith(".csv"):
-        claves = datos[0].keys()
-        with open(ruta, "w", newline="", encoding="utf-8" ) as archivo:
-            writer = csv.DictWriter(archivo, fieldnames=claves)
-            writer.writeheader()
-            writer.writerows(datos)
-    elif ruta.endswith(".json"):
-        with open(ruta, "w", encoding="utf-8") as archivo:
-            json.dump(datos, archivo, indent=4)
-#Cargar resultados 
-def cargar_resultados(ruta):
-    if ruta.endswith(".csv"):
-        return cargar_dataset_completo(ruta)
-    elif ruta.endswith(".json"):
-        with open(ruta, encoding='utf-8') as archivo:
-            return json.load(archivo)
+    
+    print(f"\nSe encontraron {len(busqueda)} resultados\n") 
+    cli.imprimir_dataset(busqueda)
 
-# FUNCIONALIDAD 2
-#Visualizar el historial
-def visualizar_hisorial():
-    with open("resultados/historial.csv", mode='r', encoding='utf-8') as archivo:
+    util.guardar_historial(2, a, len(busqueda))
+    util.guardar_dataset(busqueda)
+
+def estadisticas_basicas():
+    '''imprime el valor maximo, minimo y promedio de la columna seleccionada'''
+
+    global dataset
+
+    maximo = None
+    minimo = None
+    suma = 0
+    contador = 0
+
+    print("\nElegiste ESTADÍSTICAS BÁSICAS\n")
+
+    columna = cli.menu_estadisticas()
+
+    for fila in dataset:
+        try:
+            valor = float(fila[columna])
+        except:
+            continue
+
+        if maximo is None or valor > maximo:
+            maximo = valor
+        if minimo is None or valor < minimo:
+            minimo = valor 
+
+        suma += valor 
+        contador += 1
+
+    if contador > 0:
+        promedio = suma/contador
+        print(f"Máximo: {maximo} · Mínimo: {minimo} · Promedio: {round(promedio,1)}")
+    else:
+        print("No hay datos en la columna")
+
+    util.guardar_historial(3,columna,f"Maximo: {maximo} | media: {promedio} | minimo: {minimo} | {contador}")
+
+    
+def filtro():
+    '''
+        filtra los datos encontrando los valores de una columna mayores al valor 
+        que ingrese el usuario.
+    '''
+
+    global dataset
+
+    filtro_l = [] #cambie de filtro a filtro_l para evitar colision en la llamada recursiva
+
+    print("\nElegiste FILTRAR POR CONDICIÓN\n")
+
+    x, y = cli.menu_filtro()
+
+    for fila in dataset:
+        try:
+            if float(fila[x]) >= y:
+                filtro_l.append(fila)
+        except:
+            continue
+
+    filtro_l.sort(key=lambda a: a[x])
+
+    print(f"\nSe filtraron {len(dataset)-len(filtro_l)} resultados\n\n")
+    
+    cli.imprimir_dataset(filtro_l)
+
+    util.guardar_historial(4, x, f"mayores a {y}: {len(filtro_l)}")
+
+    if len(filtro_l) > 1:
+        cli.save_dataset(filtro_l)
+
+def visualizar_historial():
+
+    with open(os.path.join(DIR_RAIZ, RUTA_HISTORIAL), mode='r', encoding='utf-8') as archivo:
         datos = csv.reader(archivo, delimiter=",")
-        return list(datos)
-#Guardar historial
-import datetime as dt
-import csv
-def guardar_historial(opcion, resultado):
-    with open("resultados/historial.csv", mode='a', encoding='utf-8') as hist:
-        if opcion == '1':
-            t = 'Visualizar datos'
-            res = resultado
-        elif opcion == '2':
-            t = 'Pacientes en riezgo'
-            res = len(resultado)
-        elif opcion == '3':
-            t = 'Guardar filtro'
-            res = len(resultado)
-        elif opcion == '4':
-            t = 'Cargar resultados'
-            res = len(resultado)
-        elif opcion == '5':
-            t = 'Visualizar historial'
-            res = resultado
-        elif opcion == '6':
-            t = 'Funcionalidad opcional'
-            res = resultado
-        r = str(res) + ' resultados'
-        guardar = csv.writer(hist, delimiter=",")
-        guardar.writerow([dt.datetime.now().strftime("%Y-%m-%d %H:%M"), t, r])
-#FUNCIONALIDAD OPCIONAL
+        cli.imprimir_historial(datos)
+        return True
+
+#funcion principal
+def app():
+    while True:
+        #verificando que haya un dataset cargado, si no lo hay obliga a cargar uno si lo hay muestra el menu
+        if dataset == None or len(dataset)<=1:
+            opcion = 1
+        else:
+            opcion = cli.menu_interactivo()
+
+        #Toma la opcion seleccionada en el menu y corre la funcion correspondien
+        match opcion:
+            case 1:
+                cargar_dataset_completo()
+            case 2:
+                buscar()
+            case 3:
+                estadisticas_basicas()
+            case 4:
+                filtro()
+            case 5:
+                visualizar_historial()
+            case 6:
+                print("Elegiste SALIR DEL PROGRAMA")
+                break
+            case 'e':
+                print("Error: Solo se aceptan valores numericos")
+            case _:
+                print("Opción no válida. Intenta nuevamente.")
 
 
-
-# EJECUCIÓN
-# Llamemos a la función y guardemos el resultado
-dataset = cargar_dataset_completo(RUTA_DATASET)
-
-if dataset:
-    print(f"Carga exitosa. Registros totales: {len(dataset)}")
-else:
-    print("Error al cargar el archivo.")
-
-menu_interactivo(dataset)
-
+if __name__ == '__main__':
+    app()
