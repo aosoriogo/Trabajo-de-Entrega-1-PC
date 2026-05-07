@@ -5,7 +5,7 @@ import utilidades as util
 import cli
 
 #Configuraciones iniciales
-#RUTA_DATASET = "Data\\diabetes_COMPLETO.csv"
+
 RUTA_DATASET = "Data\\diabetes_COMPLETO.csv"
 RUTA_HISTORIAL = "resultados\\historial.csv"
 DIR_RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -50,8 +50,10 @@ def cargar_dataset_completo():
                 fila["Outcome"] = int(fila["Outcome"]) if fila["Outcome"] else 0
                 dataset.append(fila)
         
-        print(f"Carga exitosa: {len(dataset)} registros.")
         cli.imprimir_dataset(dataset)
+        print(f"Carga exitosa: {len(dataset)} registros.")
+        util.guardar_historial(5,ruta.split("\\")[-1],len(dataset))
+
         return True
     except FileNotFoundError:
         print(f"ERROR: No se encontró el archivo en la ruta: {ruta}")
@@ -104,7 +106,7 @@ def buscar():
     cli.imprimir_dataset(busqueda)
 
     util.guardar_historial(2, a, len(busqueda))
-    util.guardar_dataset(busqueda)
+    cli.save_dataset(busqueda)
 
 def estadisticas_basicas():
     '''imprime el valor maximo, minimo y promedio de la columna seleccionada'''
@@ -175,12 +177,62 @@ def filtro():
     if len(filtro_l) > 1:
         cli.save_dataset(filtro_l)
 
+
 def visualizar_historial():
+    """ 
+     Lee el archivo del historial y lo imprime formateado 
+     (funcion obligatoria Entrega 2) 
+    """
 
     with open(os.path.join(DIR_RAIZ, RUTA_HISTORIAL), mode='r', encoding='utf-8') as archivo:
         datos = csv.reader(archivo, delimiter=",")
         cli.imprimir_historial(datos)
         return True
+    
+def resumen_dataset():
+    global dataset
+
+    if len(dataset)<2:
+        print("Error: dataset muy corto para calcular resumen")
+        return False
+
+    cols = list(dataset[0].keys())
+    externo = dict()
+
+    for dato in cols:
+        max = None
+        min = None
+        cont = 0
+        acum = 0
+        for fila in dataset:
+            try:
+                x = float(fila[dato])
+
+                if  max == None or max < x:
+                    max = x 
+                if  min == None or min > x:
+                    min = x
+
+                acum += x
+                cont += 1
+
+            except Exception as e:
+                print(f"Saltando fila {e}") #Linea de prueba
+                continue
+
+        if cont > 1:
+            avg = round(acum/cont,2)
+
+            interno = {'max':max, 'media':avg, 'min':min}
+        else:
+            interno = {'error': 'columna no computable'}
+        externo.update({dato: interno})
+    
+    cli.imprimir_resumen(externo)
+    util.guardar_stadisticas_dataset(externo)
+
+
+
 
 #funcion principal
 def app():
@@ -194,7 +246,8 @@ def app():
         #Toma la opcion seleccionada en el menu y corre la funcion correspondien
         match opcion:
             case 1:
-                cargar_dataset_completo()
+                cargar_dataset_completo() # extendida para implementar la funcion de carga de archivo guardado 
+                resumen_dataset() # Funcion opcional entrega 2
             case 2:
                 buscar()
             case 3:

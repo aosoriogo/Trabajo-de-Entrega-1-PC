@@ -2,6 +2,7 @@
 # Aqui se almacenan las funciones que se reusan pero no hacen parte directa de la logica
 import datetime as dt
 import csv
+import json
 import os
 
 DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,6 +25,8 @@ def guardar_historial(opcion: int, valor, resultados):
             t = 'Estadisticas basicas'
         case 4:
             t = 'Filtrar por'
+        case 5:
+            t = 'Seleccion dataset'
         case '2':
             t = 'Pacientes en riesgo'
         case '3':
@@ -65,6 +68,9 @@ def guardar_dataset(datos):
                 return True
         return False
 
-def guardar_stadisticas_dataset():
-    pass
+def guardar_stadisticas_dataset(datos):
+    ruta = os.path.join(DIR, f"resultados\\resumen.json")
+    
+    with open(ruta, 'w', encoding='utf-8') as aw:
+        json.dump(datos, aw, indent=4)
         
