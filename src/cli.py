@@ -161,3 +161,12 @@ def listar_dir_archivos():
     ruta = os.path.dirname(os.path.abspath(__file__))
     os.listdir(ruta)
 
+def imprimir_resumen(datos):
+    print("\n\nResumen dataset cargado: \n")
+    for k, v in datos.items():
+        print(k, end='=> ')
+        for key, val in v.items():
+            print(key, ":", val, end=" ! ")
+            pass
+        
+        print()
