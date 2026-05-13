@@ -10,8 +10,9 @@
 -	**README:** Todo el grupo
 
 # Video
+https://drive.google.com/file/d/1ncKUnb2vCN576EwE6p3gdLKiEPfHDbFy/view?usp=sharing
 
+# Diagrama de flujo
 
-# Poster 
 
 
